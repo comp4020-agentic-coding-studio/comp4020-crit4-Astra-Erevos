@@ -34,7 +34,7 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Build and run the spec
+      - name: Build, lint, and run the spec
         run: pnpm check
       - name: Check the process evidence
         # skipped in the template repo itself, where PROCESS.md is still the
@@ -42,16 +42,16 @@ jobs:
         if: ${{ !github.event.repository.is_template }}
         run: pnpm check:evidence
       - name: Check internal links
-        # Internal links only. linkinator checks outbound links by default, so
-        # someone else's rate limiter or outage would redden a build with
-        # nothing wrong in it --- crit 2 alone points the whole cohort at real
-        # orgs' sites and their socials. The regex skips anything not on the
-        # local origin the built site is served from; both spellings are named
-        # because a bare `--skip "^https?://"` matches that origin too and
-        # passes having scanned zero links. The stack skill rewrites the
-        # command below when it converts the repo to Astro, and carries the
-        # same skip over, so this comment holds either way.
-        run: pnpm dlx linkinator ./dist --silent --skip "^https?://(?!localhost|127)"
+        # astro.config.mjs roots asset links at `base` (see its comment) so
+        # they resolve once deployed under /comp4020-crit4-Astra-Erevos/; a
+        # bare `linkinator ./dist` crawl serves dist/ at "/" locally, so those
+        # same base-rooted links look 404 even though the real deployed site
+        # resolves them fine. Rewrite them back to on-disk paths before the
+        # crawl so this checks real reachability instead of the base mismatch.
+        run: >-
+          pnpm dlx linkinator ./dist --silent
+          --url-rewrite-search "/comp4020-crit4-Astra-Erevos/"
+          --url-rewrite-replace "/"
       - name: Scan for committed secrets
         # Pinned, both halves: the SHA fixes the action's script, and `version`
         # fixes the scanner image, which otherwise floats on :latest. These two

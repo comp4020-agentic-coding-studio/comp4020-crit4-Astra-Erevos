@@ -20,11 +20,12 @@ which deliverable applies. Read both before you plan or build.
 
 ## The link-preview card
 
-`public/card.png` (1200x630) is the image a shared link shows; `index.html`'s
-head points at it. Replace it and the `description` meta, and copy the head
-block into any new page. The card URL resolves against the page that names it,
-like any link --- `./card.png` is wrong one directory down, and nothing in CI
-checks it, so look at the deployed head when you add pages.
+`public/card.png` (1200x630) is the image a shared link shows; this repo builds
+with Astro, so the head lives in `src/layouts/Layout.astro` (shared by every
+page through the `title`/`description` props), not in a per-page HTML file.
+Replace the image and the description text passed to `Layout`. The card URL
+resolves against the page that names it, like any link, and nothing in CI
+checks that it resolves, so look at the deployed head when you add pages.
 
 ## The checks
 
