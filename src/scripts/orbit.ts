@@ -149,6 +149,11 @@ export function initOrbit(): void {
     const key = event.key.toLowerCase();
     if (key === " " || key === "enter") {
       event.preventDefault();
+      // The browser repeats keydown on its own OS-driven timer while a key
+      // stays held; without this guard every one of those repeats re-ran the
+      // logic below, turning a single held key into an auto-repeat-rate
+      // retrigger/update loop instead of one stable, sustained input.
+      if (event.repeat) return;
       const first = !heldKeys.has(key);
       heldKeys.add(key);
       triggerKeyboardNote(first && heldKeys.size === 1);
@@ -156,6 +161,7 @@ export function initOrbit(): void {
     }
     if (key in ANGLE_KEYS || key in DISTANCE_KEYS) {
       event.preventDefault();
+      if (event.repeat) return;
       const first = heldKeys.size === 0;
       heldKeys.add(key);
       if (key in ANGLE_KEYS) keyAngle = (keyAngle + ANGLE_KEYS[key] * KEY_STEP + 1) % 1;
