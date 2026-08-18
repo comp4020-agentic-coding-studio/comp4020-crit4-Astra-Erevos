@@ -107,19 +107,20 @@ h1.visually-quiet {
 .orbit-hint {
   position: absolute;
   left: 50%;
-  bottom: 12%;
+  bottom: 10%;
   transform: translateX(-50%);
   margin: 0;
-  font-size: 0.75rem;
-  letter-spacing: 0.2em;
+  font-size: 0.8rem;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: rgb(200 215 255 / 40%);
+  color: rgb(200 215 255 / 55%);
   pointer-events: none;
-  transition: opacity 600ms ease;
+  white-space: nowrap;
+  transition: opacity 800ms ease;
 }
 
 .orbit-hint[data-dismissed="true"] {
-  opacity: 0;
+  opacity: 0.3;
 }
 
 @media (prefers-reduced-motion: no-preference) {
