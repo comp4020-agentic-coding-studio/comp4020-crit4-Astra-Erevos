@@ -80,6 +80,15 @@ export function initOrbit(): void {
   let lastY = 0;
   let lastT = 0;
   let pointerIntensity = 0;
+  let lastPitchUpdate = 0;
+  // Pitch glides toward its target with a 50ms time constant (audioEngine's
+  // setTargetAtTime); pointermove can fire far faster than that (~8-17ms
+  // apart), so retargeting on every event never lets a glide arrive before
+  // being overwritten, which is heard as a continuous siren sweep. 60ms gives
+  // each target roughly 1-e^(-60/50) ≈ 70% of the way there before the next
+  // one lands, while staying well above the ~10Hz a drag gesture actually
+  // needs to feel continuously tracked.
+  const MIN_PITCH_UPDATE_MS = 60;
 
   space.addEventListener("pointerdown", (event) => {
     space.setPointerCapture(event.pointerId);
@@ -112,7 +121,11 @@ export function initOrbit(): void {
     lastY = y;
     lastT = now;
     const point = pointFrom(x, y);
-    engine.update(point.angle, point.distance, pointerIntensity);
+    engine.updateTimbre(point.distance, pointerIntensity);
+    if (now - lastPitchUpdate >= MIN_PITCH_UPDATE_MS) {
+      engine.updatePitch(point.angle);
+      lastPitchUpdate = now;
+    }
     if (dist > 2) spawnParticle(x, y, pointerIntensity);
   });
 

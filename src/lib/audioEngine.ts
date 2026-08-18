@@ -96,16 +96,30 @@ export class OrbitEngine {
     this.voice = { oscA, oscB, filter, gain };
   }
 
-  /** Glides the held voice toward a new position instead of retriggering it. */
-  update(angle: number, distance: number, intensity: number): void {
+  /** Glides the held voice's pitch toward a new angle. Split out from
+   *  updateTimbre so a caller can rate-limit pitch retargeting independently
+   *  of distance/intensity, which stay fine to update on every frame. */
+  updatePitch(angle: number): void {
     if (!this.voice || !this.context) return;
     const now = this.context.currentTime;
     const frequency = noteFrequency(angle);
     this.voice.oscA.frequency.setTargetAtTime(frequency, now, 0.05);
     this.voice.oscB.frequency.setTargetAtTime(frequency * 2, now, 0.05);
+  }
+
+  /** Glides the held voice's filter brightness and loudness toward new values. */
+  updateTimbre(distance: number, intensity: number): void {
+    if (!this.voice || !this.context) return;
+    const now = this.context.currentTime;
     this.voice.filter.frequency.setTargetAtTime(5200 - distance * 4400, now, 0.05);
     const peak = 0.12 + intensity * 0.28;
     this.voice.gain.gain.setTargetAtTime(peak, now, 0.06);
+  }
+
+  /** Glides the held voice toward a new position instead of retriggering it. */
+  update(angle: number, distance: number, intensity: number): void {
+    this.updatePitch(angle);
+    this.updateTimbre(distance, intensity);
   }
 
   /** Fades the held voice out gently — never an abrupt cut on release. */
