@@ -96,8 +96,16 @@ h1.visually-quiet {
 }
 
 .orbit-core:focus-visible {
-  outline: 2px solid rgb(255 255 255 / 85%);
-  outline-offset: 6px;
+  /* Outline stays but goes transparent, so forced-colors/high-contrast modes
+     still get a visible ring; everyone else sees the core's own glow flare
+     up instead of a generic browser focus box. */
+  outline: 3px solid transparent;
+  outline-offset: 10px;
+  box-shadow:
+    0 0 calc(24px + var(--intensity) * 90px) calc(4px + var(--intensity) * 30px)
+      rgb(130 170 255 / calc(35% + var(--intensity) * 45%)),
+    0 0 0 4px rgb(255 255 255 / 65%),
+    0 0 60px 22px rgb(150 190 255 / 60%);
 }
 
 .orbit-core[data-active="true"] {
