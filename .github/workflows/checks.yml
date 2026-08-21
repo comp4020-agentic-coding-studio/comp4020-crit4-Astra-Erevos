@@ -48,10 +48,16 @@ jobs:
         # same base-rooted links look 404 even though the real deployed site
         # resolves them fine. Rewrite them back to on-disk paths before the
         # crawl so this checks real reachability instead of the base mismatch.
+        # og:image is an absolute URL back to this same live domain (needed so
+        # scrapers can fetch it) -- this `check` job runs before `deploy`, so
+        # that path can't possibly be live yet on the very push that first
+        # deploys it. Skip the site's own domain: this step checks internal
+        # links, not whether this run's own deploy has landed yet.
         run: >-
           pnpm dlx linkinator ./dist --silent
           --url-rewrite-search "/comp4020-crit4-Astra-Erevos/"
           --url-rewrite-replace "/"
+          --skip "^https://comp4020-agentic-coding-studio.github.io"
       - name: Scan for committed secrets
         # Pinned, both halves: the SHA fixes the action's script, and `version`
         # fixes the scanner image, which otherwise floats on :latest. These two
